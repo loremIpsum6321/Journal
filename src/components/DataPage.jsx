@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import JournalList from './JournalList';
 import DataVisualization from './DataVisualization';
-import { generateTestData } from '../utils/testData'; // Import our new generator
+import { generateTestData } from '../utils/testData';
 
 function loadAllData() {
   const entries = JSON.parse(localStorage.getItem('journalEntries') || '[]');
@@ -18,14 +18,11 @@ function loadAllData() {
 
 function DataPage() {
   const [allData, setAllData] = useState(loadAllData);
-  // NEW: State for the chart's date range
   const [dateRange, setDateRange] = useState(7);
-  // NEW: A ref for the hidden file input
   const fileInputRef = useRef(null);
 
   useEffect(() => {
     localStorage.setItem('journalEntries', JSON.stringify(allData.entries));
-    // Save metrics too, in case they were imported/generated
     Object.keys(allData.metricsByDate).forEach(date => {
       localStorage.setItem(`metrics-${date}`, JSON.stringify(allData.metricsByDate[date]));
     });
@@ -34,45 +31,21 @@ function DataPage() {
   const handleExport = () => { /* ... unchanged ... */ };
   const handleDelete = (idToDelete) => { /* ... unchanged ... */ };
   const handleEdit = (idToEdit, newText) => { /* ... unchanged ... */ };
+  const handleImportClick = () => { fileInputRef.current.click(); };
+  const handleFileChange = (event) => { /* ... unchanged ... */ };
 
-  // NEW: Handler for the test data button
+  // UPDATED: handleGenerateData with console logs
   const handleGenerateData = () => {
+    console.log("'Generate Test Data' button clicked.");
     if (window.confirm("This will replace all current data. Are you sure?")) {
+      console.log("User confirmed. Generating data...");
       const testData = generateTestData();
+      console.log("Generated data:", testData);
       setAllData(testData);
+      console.log("State has been updated with test data.");
+    } else {
+      console.log("User canceled data generation.");
     }
-  };
-
-  // NEW: Handler for the import button
-  const handleImportClick = () => {
-    fileInputRef.current.click();
-  };
-
-  // NEW: Handler for when a file is selected
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      try {
-        const importedData = JSON.parse(e.target.result);
-        // Basic validation
-        if (importedData.entries && importedData.metricsByDate) {
-          if (window.confirm("Importing will replace all current data. Continue?")) {
-            setAllData(importedData);
-            alert("Data imported successfully!");
-          }
-        } else {
-          alert("Invalid data file format.");
-        }
-      } catch (error) {
-        alert("Failed to read or parse the file.");
-      }
-    };
-    reader.readAsText(file);
-    // Reset file input value to allow re-uploading the same file
-    event.target.value = null; 
   };
   
   return (
@@ -83,7 +56,6 @@ function DataPage() {
         dateRange={dateRange}
       />
 
-      {/* --- NEW: Control Bar --- */}
       <div className="data-controls">
         <div className="date-range-selector">
           <button onClick={() => setDateRange(7)} className={dateRange === 7 ? 'active' : ''}>7 Days</button>

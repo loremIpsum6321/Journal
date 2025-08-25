@@ -524,3 +524,42 @@ div.mood-selector button.mood-button.selected {
   background-color: var(--danger-color);
   color: white;
 }
+
+/* ---
+  Responsive Styles for Mobile
+--- */
+
+@media (max-width: 600px) {
+  /* Reduce padding on the main container to save space */
+  .app-container {
+    padding: 1rem;
+  }
+  
+  /* Make the main title a bit smaller */
+  header h1 {
+    font-size: 2rem;
+  }
+
+  /* --- Make the Data Page Controls stack vertically --- */
+  .data-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  /* Center the buttons within their groups */
+  .date-range-selector, .data-actions {
+    justify-content: center;
+    width: 100%;
+  }
+
+  /* --- Adjust Chart Font Sizes --- */
+  .recharts-legend-item,
+  .recharts-cartesian-axis-tick-value {
+    font-size: 0.8rem;
+  }
+
+  /* Make the entry options menu easier to tap */
+  .entry-menu {
+    width: 120px;
+  }
+}

@@ -89,7 +89,7 @@ function DataVisualization({ entries = [], metricsByDate = {}, dateRange = 7 }) 
       <ResponsiveContainer width="100%" height={350}>
         <LineChart data={chartData} margin={{ top: 5, right: 20, left: -10, bottom: 5 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#333" />
-          <XAxis dataKey="name" stroke="#a0a0a0" />
+          <XAxis dataKey="name" stroke="#a0a0a0"  interval="preserveStartEnd"/>
           <YAxis stroke="#a0a0a0" domain={[0, 'dataMax + 1']} />
           <Tooltip 
             contentStyle={{ backgroundColor: '#1e1e1e', border: '1px solid #333' }} 
