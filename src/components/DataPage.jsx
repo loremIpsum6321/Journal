@@ -28,26 +28,72 @@ function DataPage() {
     });
   }, [allData]);
 
-  const handleExport = () => { /* ... unchanged ... */ };
-  const handleDelete = (idToDelete) => { /* ... unchanged ... */ };
-  const handleEdit = (idToEdit, newText) => { /* ... unchanged ... */ };
-  const handleImportClick = () => { fileInputRef.current.click(); };
-  const handleFileChange = (event) => { /* ... unchanged ... */ };
+  // --- FULLY IMPLEMENTED EVENT HANDLERS ---
 
-  // UPDATED: handleGenerateData with console logs
-  const handleGenerateData = () => {
-    console.log("'Generate Test Data' button clicked.");
-    if (window.confirm("This will replace all current data. Are you sure?")) {
-      console.log("User confirmed. Generating data...");
-      const testData = generateTestData();
-      console.log("Generated data:", testData);
-      setAllData(testData);
-      console.log("State has been updated with test data.");
-    } else {
-      console.log("User canceled data generation.");
-    }
+  const handleExport = () => {
+    const jsonString = JSON.stringify(allData, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `flowjournal-export-${Date.now()}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
   
+  const handleDelete = (idToDelete) => {
+    const updatedEntries = allData.entries.filter(entry => entry.id !== idToDelete);
+    setAllData(prevData => ({ ...prevData, entries: updatedEntries }));
+  };
+  
+  const handleEdit = (idToEdit, newText) => {
+    const updatedEntries = allData.entries.map(entry => {
+      if (entry.id === idToEdit) {
+        return { ...entry, text: newText };
+      }
+      return entry;
+    });
+    setAllData(prevData => ({ ...prevData, entries: updatedEntries }));
+  };
+
+  const handleGenerateData = () => {
+    if (window.confirm("This will replace all current data. Are you sure?")) {
+      const testData = generateTestData();
+      setAllData(testData);
+    }
+  };
+
+  const handleImportClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const importedData = JSON.parse(e.target.result);
+        if (importedData.entries && importedData.metricsByDate) {
+          if (window.confirm("Importing will replace all current data. Continue?")) {
+            setAllData(importedData);
+            alert("Data imported successfully!");
+          }
+        } else {
+          alert("Invalid data file format.");
+        }
+      } catch (error) {
+        alert("Failed to read or parse the file.");
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = null; 
+  };
+  
+  // --- RENDER ---
   return (
     <div className="data-container">
       <DataVisualization 
